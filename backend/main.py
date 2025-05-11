@@ -9,8 +9,13 @@ from mistralai import Mistral
 from mistralai import DocumentURLChunk, ImageURLChunk, TextChunk
 import json
 from pydantic import BaseModel
+from dotenv import load_dotenv
+import os   
 
-api_key = "UFcjdPEUcb2vujouTVDxOkyJ3DJMmyFK"
+load_dotenv()
+# Load the API key from environment variables
+
+api_key = os.getenv("MISTRAL_API_KEY")
 
 app = FastAPI()
 
