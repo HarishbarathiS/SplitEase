@@ -22,11 +22,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+
+class Item(BaseModel):
+    product_name: str
+    price: float
+
+class OCRContents(BaseModel):
+    shop_name: str
+    items: list[Item]
+    sgst: float
+    cgst: float
+    total: float
+
 class StructuredOCR(BaseModel):
     file_name: str
     topics: list[str]
     languages: str
-    ocr_contents: dict
+    ocr_contents: OCRContents
+
 
 @app.post("/handle_bill")
 async def handle_bill(file: UploadFile = File(...)):
@@ -59,11 +73,22 @@ async def handle_bill(file: UploadFile = File(...)):
                     "content": [
                         ImageURLChunk(image_url=base64_data_url),
                         TextChunk(text=(
-                            f"This is the image's OCR in markdown:\n{image_ocr_markdown}\n.\n"
-                            "Convert this into a structured JSON response "
-                            "with the OCR contents in a sensible dictionnary."
-                            )
-                        )
+                            f"This is the OCR result from a bill image:\n\n{image_ocr_markdown}\n\n"
+                            "From this, extract and return a structured JSON object with the following fields:\n\n"
+                            "1. `file_name`: The name of the uploaded file.\n"
+                            "2. `languages`: The language(s) used in the bill.\n"
+                            "3. `topics`: Any relevant tags or categories about the contents.\n"
+                            "4. `ocr_contents`: An object containing:\n"
+                            "   - `shop_name`: The name of the shop or merchant.\n"
+                            "   - `items`: A list of products, each with:\n"
+                            "     - `product_name`: The name of the product.\n"
+                            "     - `price`: The price of that product.\n"
+                            "   - `sgst`: The SGST tax value in the bill.\n"
+                            "   - `cgst`: The CGST tax value in the bill.\n"
+                            "   - `total`: The total billed amount (after tax).\n\n"
+                            "Ensure keys are named exactly as above. Return only the structured JSON — do not include any explanations or extra text."
+                        )),
+            
                     ]
                 }
             ],
