@@ -46,6 +46,8 @@ export default function UploadBillPage() {
       cgst: 0,
     },
   });
+  const [priceInputs, setPriceInputs] = useState<{ [key: number]: string }>({});
+
   // const shop_name = ""
   // const Total_amt = ""
   // const sgst = ""
@@ -133,8 +135,49 @@ export default function UploadBillPage() {
               <CardContent className="p-3">
                 <div className="flex justify-between items-center">
                   <div>
-                    <p className="text-lg font-medium ">{item.product_name}</p>
-                    <p className="text-xl text-green-500">₹{item.price}</p>
+                    <Input
+                      value={item.product_name}
+                      onChange={(e) => {
+                        const newItems = [...ocrResult.ocr_contents.items];
+                        newItems[index].product_name = e.target.value;
+                        setOcrResult((prev) => ({
+                          ...prev,
+                          ocr_contents: {
+                            ...prev.ocr_contents,
+                            items: newItems,
+                          },
+                        }));
+                      }}
+                      className="mb-2 text-gray-800 font-semibold"
+                    />
+                    <Input
+                      type="text"
+                      inputMode="decimal"
+                      value={priceInputs[index] ?? item.price.toString()}
+                      onChange={(e) => {
+                        const newVal = e.target.value;
+
+                        // Update input text
+                        setPriceInputs((prev) => ({
+                          ...prev,
+                          [index]: newVal,
+                        }));
+
+                        // Optionally validate and update OCR result
+                        if (!isNaN(parseFloat(newVal))) {
+                          const newItems = [...ocrResult.ocr_contents.items];
+                          newItems[index].price = parseFloat(newVal);
+                          setOcrResult((prev) => ({
+                            ...prev,
+                            ocr_contents: {
+                              ...prev.ocr_contents,
+                              items: newItems,
+                            },
+                          }));
+                        }
+                      }}
+                      className="mb-2 text-green-500 font-semibold"
+                    />
                   </div>
                 </div>
 
@@ -180,12 +223,65 @@ export default function UploadBillPage() {
           <Card>
             <CardContent className="p-3">
               <div className="flex justify-center items-center">
-                <div>
+                <div className="flex flex-col gap-2">
                   <p className="font-bold text-2xl">Total Amount</p>
                   <div className="flex justify-center items-center mt-2">
-                    <p className="text-3xl text-green-500">
-                      ₹{ocrResult.ocr_contents.total}
-                    </p>
+                    <Input
+                      type="number"
+                      value={ocrResult.ocr_contents.total}
+                      onChange={(e) => {
+                        const newVal = e.target.value;
+                        setOcrResult((prev) => ({
+                          ...prev,
+                          ocr_contents: {
+                            ...prev.ocr_contents,
+                            total: parseFloat(newVal),
+                          },
+                        }));
+                      }}
+                      className="text-3xl text-green-500 w-40 text-center"
+                      placeholder="₹0.00"
+                    />
+                  </div>
+                  <div className="flex flex-col items-center mt-2 gap-2">
+                    <div className="flex gap-2">
+                      <p className="text-md mt-1 text-gray-500">SGST : </p>
+                      <Input
+                        type="number"
+                        value={ocrResult.ocr_contents.sgst}
+                        onChange={(e) => {
+                          const newVal = e.target.value;
+                          setOcrResult((prev) => ({
+                            ...prev,
+                            ocr_contents: {
+                              ...prev.ocr_contents,
+                              sgst: parseFloat(newVal),
+                            },
+                          }));
+                        }}
+                        className="text-green-500 w-20 text-center"
+                        placeholder="₹0.00"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <p className="text-md mt-1 text-gray-500">CGST : </p>
+                      <Input
+                        type="number"
+                        value={ocrResult.ocr_contents.cgst}
+                        onChange={(e) => {
+                          const newVal = e.target.value;
+                          setOcrResult((prev) => ({
+                            ...prev,
+                            ocr_contents: {
+                              ...prev.ocr_contents,
+                              sgst: parseFloat(newVal),
+                            },
+                          }));
+                        }}
+                        className="text-green-500 w-20 text-center"
+                        placeholder="₹0.00"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
