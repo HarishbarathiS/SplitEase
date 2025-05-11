@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Car } from "lucide-react";
 
 // Dummy members list
 const members = ["A", "B", "C"];
@@ -17,12 +18,59 @@ const mockItems = [
   { id: 3, name: "Eggs", amount: 100 },
 ];
 
+interface OcrResult {
+  ocr_contents: {
+    items: {
+      product_name: string;
+      price: number;
+    }[];
+    shop_name: string;
+    total: number;
+    sgst: number;
+    cgst: number;
+  };
+}
+
 export default function UploadBillPage() {
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [items, setItems] = useState(mockItems); // simulate extracted items
   const [selectedMembers, setSelectedMembers] = useState<{
     [key: number]: string[];
   }>({});
+  const [ocrResult, setOcrResult] = useState<OcrResult>({
+    ocr_contents: {
+      items: [],
+      shop_name: "",
+      total: 0,
+      sgst: 0,
+      cgst: 0,
+    },
+  });
+  // const shop_name = ""
+  // const Total_amt = ""
+  // const sgst = ""
+  // const cgst = ""
+
+  const handleImageSubmit = async () => {
+    if (uploadedImage) {
+      const formData = new FormData();
+      formData.append("file", uploadedImage);
+
+      const res = await fetch("http://127.0.0.1:8000/handle_bill", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        console.log("Response from server:", data);
+        setOcrResult(data.data);
+        console.log(data.data.ocr_contents.items); // Assuming the response contains the items
+      } else {
+        console.error("Error uploading image");
+      }
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -33,12 +81,12 @@ export default function UploadBillPage() {
     }
   };
 
-  const toggleMember = (itemId: number, member: string) => {
+  const toggleMember = (index: number, member: string) => {
     setSelectedMembers((prev) => {
-      const current = prev[itemId] || [];
+      const current = prev[index] || [];
       return {
         ...prev,
-        [itemId]: current.includes(member)
+        [index]: current.includes(member)
           ? current.filter((m) => m !== member)
           : [...current, member],
       };
@@ -56,55 +104,93 @@ export default function UploadBillPage() {
           <p className="text-sm text-gray-600">
             Image Uploaded: {uploadedImage.name}
           </p>
+          <Button className="w-full mt-4" onClick={handleImageSubmit}>
+            Submit
+          </Button>
         </div>
       )}
 
-      {items.length > 0 && (
+      {ocrResult.ocr_contents.items.length > 0 && (
         <div className="space-y-4 mt-4">
-          <h3 className="text-lg font-medium">Assign Items to Members</h3>
+          <Card className="p-3">
+            <CardContent className="flex items-center justify-center">
+              <div>
+                {/* <p className="text-lg font-medium">Shop Name</p> */}
+                <p className="text-xl font-semibold">
+                  {ocrResult.ocr_contents.shop_name}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+          {/* <div className="flex items-center justify-center gap-2">
+            <h3 className="text-lg font-medium">
+              {ocrResult.ocr_contents.shop_name}
+            </h3>
+          </div> */}
 
-          {items.map((item) => (
-            <Card key={item.id}>
+          {ocrResult.ocr_contents.items.map((item: any, index: any) => (
+            <Card key={index}>
               <CardContent className="p-3">
                 <div className="flex justify-between items-center">
                   <div>
-                    <p className="font-medium">{item.name}</p>
-                    <p className="text-sm text-gray-600">₹{item.amount}</p>
+                    <p className="text-lg font-medium ">{item.product_name}</p>
+                    <p className="text-xl text-green-500">₹{item.price}</p>
                   </div>
                 </div>
 
                 <div className="flex gap-4 mt-2 flex-wrap">
                   {members.map((member) => (
-                    <div key={member} className="flex items-center gap-2">
+                    <div
+                      key={`${index}-${member}`}
+                      className="flex items-center gap-2"
+                    >
                       <Checkbox
-                        id={`${item.id}-${member}`}
-                        checked={(selectedMembers[item.id] || []).includes(
+                        id={`${index}-${member}`}
+                        checked={(selectedMembers[index] || []).includes(
                           member
                         )}
-                        onCheckedChange={() => toggleMember(item.id, member)}
+                        onCheckedChange={() => toggleMember(index, member)}
                       />
 
-                      <Label htmlFor={`${item.id}-${member}`}>{member}</Label>
+                      <Label htmlFor={`${index}-${member}`}>{member}</Label>
                     </div>
                   ))}
-                  <Checkbox
-                    id={`${item.id}-split`}
-                    checked={
-                      (selectedMembers[item.id] || []).length === members.length
-                    }
-                    onCheckedChange={(checked) => {
-                      setSelectedMembers((prev) => ({
-                        ...prev,
-                        [item.id]: checked ? [...members] : [],
-                      }));
-                    }}
-                  />
-                  <Label htmlFor={`${item.id}-split`}>Split equally</Label>
+                  <div
+                    key={`${index}-split`}
+                    className="flex items-center gap-2"
+                  >
+                    <Checkbox
+                      id={`${index}-split`}
+                      checked={
+                        (selectedMembers[index] || []).length === members.length
+                      }
+                      onCheckedChange={(checked) => {
+                        setSelectedMembers((prev) => ({
+                          ...prev,
+                          [index]: checked ? [...members] : [],
+                        }));
+                      }}
+                    />
+                    <Label htmlFor={`${index}-split`}>Split equally</Label>
+                  </div>
                 </div>
               </CardContent>
             </Card>
           ))}
-
+          <Card>
+            <CardContent className="p-3">
+              <div className="flex justify-center items-center">
+                <div>
+                  <p className="font-bold text-2xl">Total Amount</p>
+                  <div className="flex justify-center items-center mt-2">
+                    <p className="text-3xl text-green-500">
+                      ₹{ocrResult.ocr_contents.total}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
           <Button className="w-full mt-4">Submit</Button>
         </div>
       )}
