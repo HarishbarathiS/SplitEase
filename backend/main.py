@@ -35,10 +35,13 @@ class Item(BaseModel):
 
 class OCRContents(BaseModel):
     shop_name: str
+    currency: str
     items: list[Item]
     sgst: float
     cgst: float
+    other_tax: float
     total: float
+    net_total: float
 
 class StructuredOCR(BaseModel):
     file_name: str
@@ -85,13 +88,17 @@ async def handle_bill(file: UploadFile = File(...)):
                             "3. `topics`: Any relevant tags or categories about the contents.\n"
                             "4. `ocr_contents`: An object containing:\n"
                             "   - `shop_name`: The name of the shop or merchant.\n"
+                            "   - `currency`: Currency type:\n"
                             "   - `items`: A list of products, each with:\n"
                             "     - `product_name`: The name of the product.\n"
                             "     - `price`: The price of that product.\n"
-                            "   - `sgst`: The SGST tax value in the bill.\n"
-                            "   - `cgst`: The CGST tax value in the bill.\n"
-                            "   - `total`: The total billed amount (after tax).\n\n"
-                            "Ensure keys are named exactly as above. Return only the structured JSON — do not include any explanations or extra text."
+                            "   - `sgst`: The SGST value, if present.\n"
+                            "   - `cgst`: The CGST value, if present.\n"
+                            "   - `other_tax`: The service charge or other tax, if present.\n"
+                            "   - `total`: The total billed amount **before tax**.\n"
+                            "   - `net_total`: The total billed amount **after tax** (i.e., total + sgst + cgst + service_charge).\n\n"
+                            "Return the result as structured JSON only. Do not include any explanations or text outside the JSON."
+
                         )),
             
                     ]
