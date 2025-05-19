@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
 const CreateRoom = () => {
-  const [name, setName] = useState("");
   const [roomName, setRoomName] = useState("");
   const [roomCode, setRoomCode] = useState("");
 
@@ -32,10 +31,23 @@ const CreateRoom = () => {
   };
 
   // Handle form submission
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    // Add your logic to create the room with the entered data
-    console.log("Creating room with:", { name, roomName, roomCode });
+    if (roomName && roomCode) {
+      const res = await fetch("http://127.0.0.1:8000/api/create_room", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          roomId: roomCode.split("/").pop(),
+          roomName: roomName,
+          createdAt: new Date(),
+        }),
+      });
+      const data = await res.json();
+      console.log(data);
+    }
   };
 
   return (
@@ -47,7 +59,7 @@ const CreateRoom = () => {
               onSubmit={handleSubmit}
               className="flex flex-col space-y-6 w-full"
             >
-              {/* Name Input */}
+              {/* Name Input
               <div className="flex flex-col items-start w-full">
                 <label htmlFor="name" className="mb-2 text-xl">
                   Name
@@ -61,7 +73,7 @@ const CreateRoom = () => {
                   className="w-full px-4 py-2 rounded-md  bg-gray-700 text-white"
                   required
                 />
-              </div>
+              </div> */}
 
               {/* Room Name Input */}
               <div className="flex flex-col items-start w-full">
