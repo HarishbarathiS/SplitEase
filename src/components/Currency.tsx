@@ -8,7 +8,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { on } from "events";
 
 const Currency = ({
   onCurrencyChange,
@@ -47,10 +46,10 @@ const Currency = ({
 
   return (
     <Select onValueChange={handleCurrencyChange}>
-      <SelectTrigger className="bg-black text-white p-3 rounded-lg w-[180px] border-none">
+      <SelectTrigger className="bg-primary text-white p-3 rounded-lg w-[180px] border-none">
         <SelectValue placeholder="Select a Currency" />
       </SelectTrigger>
-      <SelectContent className="bg-black text-white">
+      <SelectContent className="bg-primary text-white">
         <SelectGroup>
           <SelectLabel className="text-white">Currencies</SelectLabel>
           {currency_json
@@ -59,7 +58,7 @@ const Currency = ({
               <SelectItem
                 key={item.code}
                 value={item.code}
-                className="bg-black text-white"
+                className="bg-primary text-white"
               >
                 {item.currency} ({item.symbol})
               </SelectItem>

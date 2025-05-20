@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Toaster } from "sonner";
+import ScanningAnimation from "@/components/ScanningAnimation";
+import { useEffect } from "react";
 
 // Dummy members list
 const members = ["A", "B", "C"];
@@ -29,6 +31,15 @@ interface OcrResult {
 
 export default function UploadBillPage() {
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+  const [showImage, setShowImage] = useState<boolean>(false);
+  const [showImageAlone, setShowImageAlone] = useState<boolean>(false);
+
+  const loading_msgs = [
+    "Processing...",
+    "Extracting Content...",
+    "Structuring the results...",
+    "Almost done...",
+  ];
 
   const [selectedMembers, setSelectedMembers] = useState<{
     [key: number]: string[];
@@ -45,8 +56,24 @@ export default function UploadBillPage() {
     },
   });
   const [priceInputs, setPriceInputs] = useState<{ [key: number]: string }>({});
+  const [showAnimation, setShowAnimation] = useState<boolean>(false);
+  const [messageIndex, setMessageIndex] = useState(0);
+
+  useEffect(() => {
+    if (!showAnimation) return;
+    DisplayMessages();
+  }, [showAnimation]);
+
+  const DisplayMessages = async () => {
+    for (var i = 0; i < loading_msgs.length; i++) {
+      setMessageIndex(i);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    }
+  };
 
   const handleImageSubmit = async () => {
+    setShowAnimation(true);
+    setShowImage(false);
     if (uploadedImage) {
       const formData = new FormData();
       formData.append("file", uploadedImage);
@@ -60,11 +87,15 @@ export default function UploadBillPage() {
         const data = await res.json();
         console.log("Response from server:", data);
         setOcrResult(data.data);
-
+        setShowAnimation(false);
+        setShowImageAlone(true);
         console.log(data.data.ocr_contents.items); // Assuming the response contains the items
       } else {
+        // console.log(result);
         toast.error("Error uploading image");
         console.error("Error uploading image");
+        setShowAnimation(false);
+        setShowImageAlone(true);
       }
     }
   };
@@ -72,6 +103,7 @@ export default function UploadBillPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setUploadedImage(e.target.files[0]);
+      setShowImage(true);
     }
   };
 
@@ -91,7 +123,6 @@ export default function UploadBillPage() {
     <div className="min-h-screen w-full bg-gradient-to-r from-violet-500 to-indigo-600">
       <div className="max-w-md mx-auto  p-4 space-y-4 rounded-lg shadow-md">
         <h2 className="text-xl font-semibold">Upload Bill</h2>
-
         <Input
           type="file"
           accept="image/*"
@@ -100,7 +131,7 @@ export default function UploadBillPage() {
           
           text-white placeholder:text-white"
         />
-        <Toaster
+        {/* <Toaster
           toastOptions={{
             unstyled: true,
             classNames: {
@@ -110,14 +141,26 @@ export default function UploadBillPage() {
               info: "bg-blue-400",
             },
           }}
-        />
-        {uploadedImage && (
+        /> */}
+        {showAnimation && (
+          <div className="flex flex-col items-center justify-center">
+            <ScanningAnimation />
+            <p className="mt-4 text-lg font-semibold text-white">
+              {loading_msgs[messageIndex]}
+            </p>
+          </div>
+        )}
+        {/* <div className="flex flex-col items-center justify-center">
+          <ScanningAnimation />
+        </div> */}
+
+        {showImage && uploadedImage && (
           <div className="border p-2 rounded-md border-white">
             <p className="text-sm text-gray-600">
               <img src={URL.createObjectURL(uploadedImage)} alt="Uploaded" />
             </p>
             <Button
-              className="w-full mt-4 bg-gradient-to-r from-slate-700 to-slate-800 text-white"
+              className="w-full mt-4 bg-gradient-to-r from-slate-700 to-slate-800 text-white transition duration-300 ease-in-out transform hover:scale-102 hover:brightness-110 active:scale-95 focus:outline-none focus:ring-2 focus:ring-slate-500"
               onClick={() => {
                 handleImageSubmit();
                 toast.success("Image submitted!");
@@ -127,9 +170,18 @@ export default function UploadBillPage() {
             </Button>
           </div>
         )}
-
+        {showImageAlone && uploadedImage && (
+          <div className="border p-2 rounded-md border-white">
+            <p className="text-sm text-gray-600">
+              <img src={URL.createObjectURL(uploadedImage)} alt="Uploaded" />
+            </p>
+          </div>
+        )}
         {ocrResult.ocr_contents.items.length > 0 && (
           <div className="space-y-4 mt-4">
+            <div className="flex items-center justify-center">
+              <h2 className="text-2xl font-semibold underline"> Shop Name </h2>
+            </div>
             <Card className="p-3 bg-gradient-to-r from-slate-700 to-slate-800 text-white">
               <CardContent className="flex items-center justify-center ">
                 <div>
@@ -140,7 +192,9 @@ export default function UploadBillPage() {
                 </div>
               </CardContent>
             </Card>
-
+            <div className="flex items-center justify-center">
+              <h2 className="text-2xl font-semibold underline"> Items </h2>
+            </div>
             {ocrResult.ocr_contents.items.map((item: any, index: any) => (
               <Card
                 key={index}
@@ -235,7 +289,7 @@ export default function UploadBillPage() {
                 </CardContent>
               </Card>
             ))}
-            
+
             <Card className="bg-gradient-to-r from-slate-700 to-slate-800">
               <CardContent className="p-4">
                 <div className="flex flex-col gap-5">

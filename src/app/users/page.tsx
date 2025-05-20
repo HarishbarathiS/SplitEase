@@ -29,9 +29,13 @@ const page = () => {
     setMembers(updated);
   };
 
+  const handleSubmit = async () => {
+    console.log(members);
+  };
+
   return (
     <div className="min-h-screen w-full bg-gradient-to-r from-violet-500 to-indigo-600">
-      <div className="flex flex-col items-center pt-10 px-4">
+      <div className="flex flex-col items-center pt-10 px-4 space-y-5">
         <h1 className="font-bold  text-4xl mb-10 underline">Members</h1>
         <div className="w-full max-w-md space-y-5">
           <h2 className="text-2xl font-semibold font-white">Add Members</h2>
@@ -46,7 +50,7 @@ const page = () => {
                   }
                 }}
                 placeholder={`Member ${index + 1}`}
-                className="flex-1 bg-black text-xl text-white p-5 border border-gray-300 rounded-md placeholder-white"
+                className="flex-1 bg-primary text-lg text-white p-5 border border-gray-300 rounded-md placeholder-white"
               />
 
               {members.length > 1 && (
@@ -59,19 +63,25 @@ const page = () => {
               )}
             </div>
           ))}
-          <Button onClick={addMemberField} className="text-lg">
+          <Button onClick={addMemberField} className="bg-primary">
             Add Member
           </Button>
         </div>
+        <Button onClick={handleSubmit} className="text-lg w-full">
+          Submit
+        </Button>
         <BottomNav />
         <Toaster
           toastOptions={{
             unstyled: true,
             classNames: {
-              error: "bg-red-400",
-              success: "text-green-400",
-              warning: "text-yellow-400",
-              info: "bg-blue-400",
+              error:
+                "bg-red-300 border border-red-400 text-red-700 px-4 py-3 rounded shadow",
+              success:
+                "bg-green-300 border border-green-400 text-green-700 px-4 py-3 rounded shadow",
+              warning:
+                "bg-yellow-300 border border-yellow-400 text-yellow-700 px-4 py-3 rounded shadow",
+              info: "bg-blue-300 border border-blue-400 text-blue-700 px-4 py-3 rounded shadow",
             },
           }}
         />

@@ -19,7 +19,7 @@ const Page = () => {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-r from-violet-500 to-indigo-600 text-black">
-      <div className="flex flex-col items-center pt-10 px-4">
+      <div className="flex flex-col items-center pt-10 px-4 space-y-5">
         <h1 className="font-bold underline text-black p-5 rounded-full text-4xl mb-10">
           Expenses
         </h1>
@@ -35,11 +35,11 @@ const Page = () => {
           </div>
           <h1 className="text-xl font-monospace">Total Expenses</h1>
         </div>
-        <div className="w-auto mt-10">
+        <div className="w-auto mt-5">
           {/* <Button  className="w-full p-7 text-xl ">
             ADD EXPENSE
           </Button> */}
-          <ExpensePopup />
+          <ExpensePopup checkCurrencySelected={currency} />
         </div>
       </div>
       <Toaster />

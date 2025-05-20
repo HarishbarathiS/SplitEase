@@ -28,6 +28,7 @@ const CreateRoom = () => {
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     const url = process.env.NEXT_PUBLIC_PRODUCTION_URL + "/room/";
     setRoomCode(url + code);
+    localStorage.setItem("roomCode", code);
   };
 
   // Handle form submission
@@ -42,7 +43,7 @@ const CreateRoom = () => {
         body: JSON.stringify({
           roomId: roomCode.split("/").pop(),
           roomName: roomName,
-          createdAt: new Date(),
+          createdAt: new Date().toLocaleString("en-US", {timeZone: 'Asia/Kolkata'}),
         }),
       });
       const data = await res.json();

@@ -2,20 +2,49 @@ import base64
 import models.ocr_model as StructuredOCR
 from mistralai import Mistral
 from mistralai import ImageURLChunk, TextChunk
+import json
+from pydantic import BaseModel 
+
+class Item(BaseModel):
+    product_name: str
+    price: float
+
+class OCRContents(BaseModel):
+    shop_name: str
+    currency: str
+    items: list[Item]
+    sgst: float
+    cgst: float
+    other_tax: float
+    total: float
+    net_total: float
+
+class StructuredOCR(BaseModel):
+    file_name: str
+    topics: list[str]
+    languages: str
+    ocr_contents: OCRContents
 
 def encode_image_to_base64(contents : bytes) -> str:
     encoded = base64.b64encode(contents).decode()
     return f"data:image/jpeg;base64,{encoded}"
 
-def extract_structured_data(client, base64_data_url: str, ) -> dict:
+def extract_structured_data(client, base64_data_url: str) -> dict:
 
 # Process image with OCR
+    # schema = StructuredOCR.model_json_schema()
+    # print(hasattr(schema, "model_json_schema"))
     image_response = client.ocr.process(
         document=ImageURLChunk(image_url=base64_data_url),
         model="mistral-ocr-latest"
     )
 
+    response_dict = json.loads(image_response.model_dump_json())
+    json_string = json.dumps(response_dict, indent=4)
+    # print(json_string)
+
     image_ocr_markdown = image_response.pages[0].markdown
+    # print("OCR result:", image_ocr_markdown)
 
 # Parse the OCR result into a structured JSON response
     chat_response = client.chat.parse(
@@ -52,5 +81,5 @@ def extract_structured_data(client, base64_data_url: str, ) -> dict:
         response_format=StructuredOCR,
         temperature=0
     )
-
+    # print("Chat response:", chat_response)
     return chat_response.choices[0].message.parsed

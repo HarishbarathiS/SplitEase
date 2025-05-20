@@ -1,7 +1,8 @@
 from fastapi import APIRouter
 from services.room_service import get_room_by_id, create_room_in_db, check_room_in_db
-
+from pydantic import BaseModel
 router = APIRouter()
+
 
 @router.get("/room/{room_id}")
 async def get_room(room_id: int):

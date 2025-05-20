@@ -1,17 +1,23 @@
 "use client";
-
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Home, Users, Wallet, List } from "lucide-react";
 
 export default function BottomNavBar() {
   const router = useRouter();
+  const [data, setData] = useState<string | null>("");
+
+  useEffect(() => {
+    const roomCode = localStorage.getItem("roomCode");
+    setData(roomCode);
+  });
 
   return (
     <div className="flex flex-col items-center justify-center">
-      <div className="fixed bottom-1 left-1/2 transform -translate-x-1/2 w-[97%] md:w-[600px] bg-black rounded-full text-white py-3 z-50 shadow-lg">
+      <div className="fixed bottom-1 left-1/2 transform -translate-x-1/2 w-[97%] md:w-[600px] bg-primary  rounded-full text-white py-3 z-50 shadow-lg">
         <div className="flex justify-evenly items-center">
           {[
-            { icon: Home, label: "Home", route: "/home" },
+            { icon: Home, label: "Home", route: `/room/${data}` },
             { icon: Users, label: "Members", route: "/users" },
             { icon: Wallet, label: "Expenses", route: "/manual" },
             { icon: List, label: "Transactions", route: "/home" },
