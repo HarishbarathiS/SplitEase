@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 const CreateRoom = () => {
   const [roomName, setRoomName] = useState("");
   const [roomCode, setRoomCode] = useState("");
+  const [userName, setUserName] = useState("");
 
   const router = useRouter();
 
@@ -25,7 +26,11 @@ const CreateRoom = () => {
   };
   // Function to generate a random 6-digit code
   const generateRoomCode = () => {
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    var code = "";
+    for (let i = 0; i < 5; i++) {
+      code += String.fromCharCode(65 + Math.floor((Math.random() * 256) % 26));
+      code += Math.floor(Math.random() * 10);
+    }
     const url = process.env.NEXT_PUBLIC_PRODUCTION_URL + "/room/";
     setRoomCode(url + code);
     localStorage.setItem("roomCode", code);
@@ -41,15 +46,23 @@ const CreateRoom = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          roomId: roomCode.split("/").pop(),
-          roomName: roomName,
-          createdAt: new Date().toLocaleString("en-US", {timeZone: 'Asia/Kolkata'}),
+          room_code: roomCode.split("/").pop(),
+          room_name: roomName,
+          created_at: new Date().toLocaleString("en-US", {
+            timeZone: "Asia/Kolkata",
+          }),
         }),
       });
       const data = await res.json();
       console.log(data);
     }
+
+    // handleCreateAdmin();
   };
+
+  // const handleCreateAdmin = () => {
+  //   if()
+  // }
 
   return (
     <div className="flex items-center justify-center min-h-dvh bg-gradient-to-r from-violet-500 to-indigo-600 p-4">
@@ -60,7 +73,7 @@ const CreateRoom = () => {
               onSubmit={handleSubmit}
               className="flex flex-col space-y-6 w-full"
             >
-              {/* Name Input
+              Name Input
               <div className="flex flex-col items-start w-full">
                 <label htmlFor="name" className="mb-2 text-xl">
                   Name
@@ -68,14 +81,13 @@ const CreateRoom = () => {
                 <input
                   id="name"
                   type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  value={userName}
+                  onChange={(e) => setUserName(e.target.value)}
                   placeholder="Enter your name"
                   className="w-full px-4 py-2 rounded-md  bg-gray-700 text-white"
                   required
                 />
-              </div> */}
-
+              </div>
               {/* Room Name Input */}
               <div className="flex flex-col items-start w-full">
                 <label htmlFor="roomName" className="mb-2 text-xl">
@@ -91,7 +103,6 @@ const CreateRoom = () => {
                   required
                 />
               </div>
-
               {/* Room Code Display */}
               <div className="flex flex-col items-start w-full">
                 <label className="mb-2 text-xl">Room link</label>
@@ -142,7 +153,6 @@ const CreateRoom = () => {
                   Share it with your friends to invite them to the room!
                 </p>
               </div>
-
               {/* Create Button */}
               <Button
                 type="submit"
