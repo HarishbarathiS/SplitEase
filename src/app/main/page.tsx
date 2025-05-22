@@ -24,7 +24,7 @@ const page = () => {
             <div>
               <Button
                 onClick={handleCreateRoomClick}
-                className="text-xl p-5 bg-gradient-to-r from-violet-500 to-indigo-600 w-full"
+                className="text-xl p-5 bg-gradient-to-r from-violet-500 to-indigo-600 w-full hover:from-purple-700 hover:to-blue-800"
               >
                 CREATE ROOM
               </Button>
@@ -32,7 +32,7 @@ const page = () => {
             <div>
               <Button
                 onClick={handleJoinRoomClick}
-                className="text-xl p-5 bg-gradient-to-r from-violet-500 to-indigo-600 w-full"
+                className="text-xl p-5 bg-gradient-to-r from-violet-500 to-indigo-600 w-full hover:from-purple-700 hover:to-blue-800"
               >
                 JOIN ROOM
               </Button>

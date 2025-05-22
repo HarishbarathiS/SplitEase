@@ -24,7 +24,7 @@ const CreateRoom = () => {
     console.log("Copied the text: " + copyText);
     navigator.clipboard.writeText(copyText);
   };
-  // Function to generate a random 6-digit code
+  
   const generateRoomCode = () => {
     var code = "";
     for (let i = 0; i < 5; i++) {
@@ -156,7 +156,7 @@ const CreateRoom = () => {
               {/* Create Button */}
               <Button
                 type="submit"
-                className="bg-gradient-to-r p-5 mb-2 text-lg from-violet-500 to-indigo-600 w-full"
+                className="bg-gradient-to-r p-5 mb-2 text-lg from-violet-500 to-indigo-600 w-full hover:from-purple-700 hover:to-blue-800"
                 onClick={() => {
                   router.push("/room/" + roomCode.split("/").pop());
                 }}
