@@ -1,7 +1,6 @@
 from fastapi import APIRouter, UploadFile, File
 from mistralai import Mistral
 from fastapi.responses import JSONResponse
-import base64
 import json
 from mistralai import Mistral
 from services.ocr_service import encode_image_to_base64, extract_structured_data
@@ -20,8 +19,10 @@ async def handle_bill(file: UploadFile = File(...)):
             return JSONResponse(content={"status": "not okay", "reason": "Not an image"}, status_code=400)
 
 
+
         # Encode image as base64 for API
         contents = await file.read()
+
         encoded_image = encode_image_to_base64(contents)
 
 
@@ -29,10 +30,10 @@ async def handle_bill(file: UploadFile = File(...)):
         client = Mistral(api_key=api_key)
 
         structured_response = extract_structured_data(client, encoded_image)
-        print("Response from Mistral API:", structured_response)
+        # print("Response from Mistral API:", structured_response)
         # Parse and return JSON response
         response_dict = json.loads(structured_response.model_dump_json())
-        print(json.dumps(response_dict, indent=4))
+        # print(json.dumps(response_dict, indent=4))
         return JSONResponse(content={"status": "okay", "data": response_dict}, status_code=200)
 
     except Exception as e:

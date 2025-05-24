@@ -9,12 +9,12 @@ class Transaction:
 
 
 class ExpenseSplitter:
-    def __init__(self, paraticipants):
+    def __init__(self, members):
         self.payer_to_total_share = OrderedDict()
-        self.paraticipants = paraticipants
+        self.members = members
         self.contribution = OrderedDict()
     
-    def calculate_shares_for_expense(self, item_to_payers : defaultdict, items : dict):
+    def calculate_shares_for_expense(self, item_to_payers : defaultdict, items : dict, paraticipants : list):
 
         payer_share_to_item = defaultdict(dict)
 
@@ -24,7 +24,7 @@ class ExpenseSplitter:
             for payer in payers:
                 payer_share_to_item[payer][item] = share
         
-        for paraticipant in self.paraticipants:
+        for paraticipant in paraticipants:
             if paraticipant in payer_share_to_item.keys():
                 total_share = 0
                 for _,share in payer_share_to_item[paraticipant].items():
@@ -35,15 +35,15 @@ class ExpenseSplitter:
         # print(payer_share_to_item)
         # print(self.payer_to_total_share)
         
-    def calculate_transactions(self, contribution, tax):
+    def calculate_transactions(self, contribution : OrderedDict, tax : int, paraticipants : list):
         self.payer_to_total_share = OrderedDict(sorted(self.payer_to_total_share.items(), key=lambda x: x[1]))
         contribution = OrderedDict(sorted(contribution.items(), key=lambda x: x[1]))
         
         
         net_balance = OrderedDict()
-        tax_share = round(tax / len(self.paraticipants), 2)
+        tax_share = round(tax / len(paraticipants), 2)
         
-        for paraticipant in self.paraticipants:
+        for paraticipant in paraticipants:
             if paraticipant in self.payer_to_total_share.keys():
                 if paraticipant in contribution.keys():
                     self.contribution[paraticipant] = self.contribution.get(paraticipant, 0.0) + contribution[paraticipant]
@@ -81,3 +81,7 @@ class ExpenseSplitter:
         
         for transaction in transactions:
             print(f"{transaction.payer} owes {transaction.receipent} {transaction.amt}")
+    
+
+def get_transactions(paraticipants : list, items : dict, items_to_payers : defaultdict, contribution : OrderedDict, tax : int):
+    
